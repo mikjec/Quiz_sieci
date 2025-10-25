@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz – Sieci Rozproszone IO 5.1</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #f4f6f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .quiz-container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      max-width: 800px;
+      width: 90%;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+
+    .question {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .answer {
+      background: #f0f0f0;
+      padding: 0.6rem 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .answer:hover {
+      background: #dceeff;
+    }
+
+    .answer.correct {
+      background: #c8f7c5;
+      border: 1px solid #4caf50;
+    }
+
+    .buttons {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #007bff;
+      color: white;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 1rem;
+      color: #777;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h1>Quiz: Sieci Rozproszone IO 5.1</h1>
+    <div id="quiz">
+      <div class="question" id="question"></div>
+      <div class="answers" id="answers"></div>
+      <div class="buttons">
+        <button id="prevBtn">⏪ Poprzednie</button>
+        <button id="showBtn">👁 Pokaż odpowiedź</button>
+        <button id="nextBtn">⏩ Następne</button>
+      </div>
+      <div class="footer" id="progress"></div>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      { question: "Które trzy polecenia pomagają w identyfikacji problemów z trasą statyczną?",
+        answers: ["a. show version","b. ping tracert","c. show ip route","d. show ip interface brief","e. show arp"],
+        correct: ["b","c","d"]
+      },
+      { question: "Jakie dwa zadania można wykonać przy użyciu funkcji historii poleceń?",
+        answers: ["a. wyświetlenie listy poleceń z poprzedniej sesji","b. przywołanie do 15 wierszy poleceń","c. ustanowienie rozmiaru bufora historii","d. przywołanie poprzednio wprowadzonych poleceń","e. zapisanie w pliku dziennika"],
+        correct: ["c","d"]
+      },
+      { question: "Za pomocą którego polecenia zostanie utworzona trasa statyczna z LAN A do LAN C?",
+        answers: ["a. ip route 192.168.4.0 255.255.255.0 192.168.5.2","b. ip route 192.168.5.0 255.255.255.0 192.168.3.2","c. ip route 192.168.4.0 255.255.255.0 192.168.3.2","d. ip route 192.168.3.2 255.255.255.0 192.168.4.0","e. ip route 192.168.3.0 255.255.255.0 192.168.3.1"],
+        correct: ["c"]
+      },
+      { question: "Która trasa jest najlepiej dopasowana dla pakietu o adresie docelowym 10.16.0.2?",
+        answers: ["a. S 10.0.0.0/8 via 192.168.0.2","b. S 10.16.0.0/24 via 192.168.0.9","c. S 10.0.0.0/16 is directly connected","d. S 10.16.0.0/16 is directly connected"],
+        correct: ["b"]
+      },
+      { question: "Jaki adres będzie adresem sumarycznym dla sieci 192.168.8.0/22, 192.168.12.0/22 i 192.168.16.0/22?",
+        answers: ["a. 192.168.0.0/18","b. 192.168.0.0/19","c. 192.168.0.0/20","d. 192.168.8.0/21"],
+        correct: ["b"]
+      },
+      { question: "Jaki jest adres rozgłoszeniowy sieci 172.16.1.45/26?",
+        answers: ["a. 172.16.1.63","b. 172.16.1.62","c. 172.16.1.255","d. 172.16.1.64"],
+        correct: ["a"]
+      },
+      { question: "Dlaczego pływająca trasa statyczna ma większą odległość administracyjną?",
+        answers: ["a. brama ostatniej szansy","b. trasa priorytetowa","c. do zrównoważenia obciążenia","d. jako trasa zapasowa"],
+        correct: ["d"]
+      },
+      { question: "Z jakiego poziomu można przypisać adres IP do interfejsu w IOS?",
+        answers: ["a. użytkownika","b. konfiguracji szczegółowej","c. konfiguracji globalnej","d. uprzywilejowanego"],
+        correct: ["b"]
+      },
+      { question: "Która linia przedstawia tryb uprzywilejowany w IOS?",
+        answers: ["a. Router#","b. Router>","c. Router(config)>","d. Router(config)#"],
+        correct: ["a"]
+      },
+      { question: "Które dwa stwierdzenia poprawnie opisują komponenty routera?",
+        answers: ["a. RAM trwale przechowuje plik konfiguracji","b. ROM zawiera procesy diagnostyczne","c. NVRAM przechowuje kopię IOS","d. Flash nie traci zawartości po restarcie","e. ROM zawiera najbardziej aktualny IOS","f. Flash zawiera komendy rozruchowe"],
+        correct: ["b","d"]
+      },
+      { question: "Jakim poleceniem można sprawdzić czy interfejs jest DTE czy DCE?",
+        answers: ["a. show interface","b. show controllers <nazwa>","c. show ip route","d. show startup-config"],
+        correct: ["b"]
+      },
+      { question: "Które polecenie doda trasę do sieci 192.168.72.0/25?",
+        answers: ["a. ip route 192.168.72.0 255.255.255.128 S0/0/0","b. ip route 192.168.72.0 255.255.255.0 10.0.0.1","c. ip route 10.0.0.1 192.168.72.0 255.255.255.0","d. ip route 10.0.0.1 192.168.72.0/25"],
+        correct: ["a"]
+      },
+      { question: "Jaki typ trasy pozwala przekierować pakiety nawet bez trasy docelowej?",
+        answers: ["a. trasa wbudowana","b. trasa dynamiczna","c. trasa docelowa","d. trasa domyślna"],
+        correct: ["d"]
+      },
+      { question: "Które polecenie uniemożliwi przerywanie wpisywania poleceń w konsoli IOS?",
+        answers: ["a. no ip domain-lookup","b. logging synchronous","c. login exec-timeout","d. enable secret"],
+        correct: ["b"]
+      },
+      { question: "Który typ trasy statycznej używa tylko interfejsu wyjściowego?",
+        answers: ["a. rekursywna","b. domyślna","c. bezpośrednio podłączona","d. w pełni określona"],
+        correct: ["c"]
+      },
+      { question: "Wpis S 10.2.0.0 [1/0] via 172.16.2.2 – co oznacza wartość 1?",
+        answers: ["a. metrykę","b. liczbę przeskoków","c. dystans administracyjny","d. ID interfejsu"],
+        correct: ["c"]
+      },
+      { question: "Jakie bloki adresów są zdefiniowane przez RFC 1918?",
+        answers: ["a. 10.0.0.0/8","b. 172.16.0.0/12","c. 192.168.0.0/16","d. 100.64.0.0/14","e. 169.254.0.0/16"],
+        correct: ["a","b","c"]
+      },
+      { question: "Jak ta trasa pojawi się w tablicy po: ip route 172.16.1.0 255.255.255.0 172.16.2.2?",
+        answers: ["a. C 172.16.1.0 is directly connected","b. C 172.16.1.0 [1/0] via 172.16.2.2","c. S 172.16.1.0 [1/0] via 172.16.2.2","d. S 172.16.1.0 is directly connected"],
+        correct: ["c"]
+      },
+      { question: "Jakiego kabla użyć do połączenia PC z routerem, gdy IOS nie załadował się?",
+        answers: ["a. koncentryczny","b. konsolowy (roll-over)","c. krosowany (z przeplotem)"],
+        correct: ["b"]
+      },
+      { question: "Jak PC A i PC B mogą komunikować się z Internetem?",
+        answers: ["a. trasa domyślna R1→ISP i statyczna ISP→R1","b. trasa dynamiczna R1→ISP i statyczna ISP→R1","c. routing dynamiczny między R1 i ISP","d. trasa statyczna R1→ISP i dynamiczna ISP→R1"],
+        correct: ["a"]
+      },
+      { question: "Które polecenie wyświetli bieżącą konfigurację?",
+        answers: ["a. show config","b. show running-config","c. show version","d. show startup-config"],
+        correct: ["b"]
+      }
+    ];
+
+    // Losowanie kolejności pytań
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+    const shuffled = shuffle([...questions]);
+
+    let current = 0;
+    const questionEl = document.getElementById("question");
+    const answersEl = document.getElementById("answers");
+    const progressEl = document.getElementById("progress");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const showBtn = document.getElementById("showBtn");
+
+    function loadQuestion() {
+      const q = shuffled[current];
+      questionEl.textContent = `${current + 1}. ${q.question}`;
+      answersEl.innerHTML = "";
+      q.answers.forEach(a => {
+        const div = document.createElement("div");
+        div.classList.add("answer");
+        div.textContent = a;
+        answersEl.appendChild(div);
+      });
+      progressEl.textContent = `Pytanie ${current + 1} z ${shuffled.length}`;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === shuffled.length - 1;
+    }
+
+    function showAnswer() {
+      const q = shuffled[current];
+      const options = answersEl.querySelectorAll(".answer");
+      options.forEach(opt => {
+        const letter = opt.textContent.trim().charAt(0);
+        if (q.correct.includes(letter)) {
+          opt.classList.add("correct");
+        }
+      });
+    }
+
+    prevBtn.addEventListener("click", () => {
+      if (current > 0) {
+        current--;
+        loadQuestion();
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (current < shuffled.length - 1) {
+        current++;
+        loadQuestion();
+      }
+    });
+
+    showBtn.addEventListener("click", showAnswer);
+
+    loadQuestion();
+  </script>
+</body>
+</html>
